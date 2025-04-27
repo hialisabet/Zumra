@@ -15,7 +15,7 @@ namespace Zumra.API.Tests
         public TodoItemsControllerTests()
         {
             _mediatorMock = new Mock<IMediator>();
-            _controller = new TodoItemsController(_mediatorMock);
+            _controller = new TodoItemsController(_mediatorMock.Object);
         }
 
         [Fact]
