@@ -27,5 +27,7 @@ public class TodoItemConfiguration
                .IsRequired();
 
         builder.Property(e => e.UpdatedAt);
+
+        builder.Property(e => e.IsDeleted);
     }
 }

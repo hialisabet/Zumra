@@ -1,12 +1,13 @@
 ﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Zumra.API.Common;
 using Zumra.Application.Features.TodoItems.Commands;
 using Zumra.Application.Features.TodoItems.Queries;
 
 namespace Zumra.API.Controllers
 {
     [ApiController]
-    [Route("api/[controller]")]
+    [Route(ApiRoutes.TodoItems)]
     public class TodoItemsController(IMediator mediator) : ControllerBase
     {
         [HttpGet]

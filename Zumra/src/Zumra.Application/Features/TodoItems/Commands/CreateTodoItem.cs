@@ -23,7 +23,7 @@ namespace Zumra.Application.Features.TodoItems.Commands
                   .MaximumLength(AppConstants.TitleMaxLength);
 
                 RuleFor(x => x.Description)
-                  .MaximumLength(AppConstants.TitleMaxLength);
+                  .MaximumLength(AppConstants.DescriptionMaxLength);
             }
         }
 
