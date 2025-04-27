@@ -1,9 +1,8 @@
-﻿using MediatR;
+﻿using FluentValidation;
+using MediatR;
 using Microsoft.Extensions.DependencyInjection;
-using System.Reflection;
 using Zumra.Application.Common.Behaviors;
-using FluentValidation;
-using FluentValidation.AspNetCore;
+using Zumra.Application.Features.TodoItems.Commands;
 
 namespace Zumra.Application;
 
@@ -11,13 +10,12 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection services)
     {
-        services.AddMediatR(cfg =>
-        {
-            cfg.RegisterServicesFromAssembly(Assembly.GetExecutingAssembly());
+        services.AddValidatorsFromAssembly(typeof(CreateTodoItem.Command).Assembly);
+
+        services.AddMediatR(cfg => {
+            cfg.RegisterServicesFromAssembly(typeof(CreateTodoItem.Handler).Assembly);
             cfg.AddBehavior(typeof(IPipelineBehavior<,>), typeof(ValidationBehavior<,>));
         });
-
-        //services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
 
         return services;
     }

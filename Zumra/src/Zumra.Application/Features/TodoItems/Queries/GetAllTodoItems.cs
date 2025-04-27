@@ -7,22 +7,13 @@ namespace Zumra.Application.Features.TodoItems.Queries
 {
     public class GetAllTodoItems
     {
-        public class Query : IRequest<List<TodoItemDto>>
+        public class Query : IRequest<List<TodoItemDto>> { }
+
+        public class Handler(IApplicationDbContext context) : IRequestHandler<Query, List<TodoItemDto>>
         {
-        }
-
-        public class Handler : IRequestHandler<Query, List<TodoItemDto>>
-        {
-            private readonly IApplicationDbContext _context;
-
-            public Handler(IApplicationDbContext context)
-            {
-                _context = context;
-            }
-
             public async Task<List<TodoItemDto>> Handle(Query request, CancellationToken cancellationToken)
             {
-                return await _context.TodoItems
+                return await context.TodoItems
                     .Select(t => new TodoItemDto
                     {
                         Id = t.Id,

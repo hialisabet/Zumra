@@ -1,64 +1,45 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
-using Zumra.API.Middleware;
+using Zumra.API.Settings;
 using Zumra.Application;
 using Zumra.Infrastructure;
 using Zumra.Infrastructure.Persistence;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+builder.Services.Configure<ConnectionSettings>(
+    builder.Configuration.GetSection("ConnectionStrings"));
+builder.Services.Configure<SwaggerSettings>(
+    builder.Configuration.GetSection("Swagger"));
+
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-
 builder.Services.AddSwaggerGen(c =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo
+    var info = builder.Configuration.GetSection("Swagger");
+    c.SwaggerDoc(info["Version"], new OpenApiInfo
     {
-        Title = "Zumra API",
-        Version = "v1",
-        Description = "API for Zumra application"
+        Title = info["Title"],
+        Version = info["Version"]
     });
 
-    // Handle circular references
-    c.CustomSchemaIds(type => type.FullName);
-
-    // Avoid schema conflicts
+    c.CustomSchemaIds(t => t.FullName);
     c.UseAllOfToExtendReferenceSchemas();
-
-    // Configure XML comments if you have them
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-    if (File.Exists(xmlPath))
-    {
-        c.IncludeXmlComments(xmlPath);
-    }
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml");
+    if (File.Exists(xmlPath)) c.IncludeXmlComments(xmlPath);
 });
 
 var app = builder.Build();
 
-// Apply migrations at startup
 using (var scope = app.Services.CreateScope())
 {
-    var services = scope.ServiceProvider;
-    try
-    {
-        var context = services.GetRequiredService<ApplicationDbContext>();
-        context.Database.Migrate();
-    }
-    catch (Exception ex)
-    {
-        var logger = services.GetRequiredService<ILogger<Program>>();
-        logger.LogError(ex, "An error occurred while migrating the database.");
-    }
+    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    db.Database.Migrate();
 }
-
-// Configure the HTTP request pipeline.
-app.UseExceptionHandling();
 
 if (app.Environment.IsDevelopment())
 {
@@ -67,9 +48,6 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 app.UseAuthorization();
-
 app.MapControllers();
-
 app.Run();

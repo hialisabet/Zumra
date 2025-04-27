@@ -4,13 +4,8 @@ using Zumra.Domain.Entities;
 
 namespace Zumra.Infrastructure.Persistence
 {
-    public class ApplicationDbContext : DbContext, IApplicationDbContext
+    public class ApplicationDbContext(DbContextOptions<ApplicationDbContext> options) : DbContext(options), IApplicationDbContext
     {
-        public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options)
-        {
-        }
-
         public DbSet<TodoItem> TodoItems => Set<TodoItem>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

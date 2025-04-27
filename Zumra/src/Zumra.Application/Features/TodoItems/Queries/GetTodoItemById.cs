@@ -1,7 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
-using Zumra.Application.Features.TodoItems.Queries;
 using Zumra.Application.Interfaces;
 
 namespace Zumra.Application.Features.TodoItems.Queries
@@ -21,18 +20,11 @@ namespace Zumra.Application.Features.TodoItems.Queries
             }
         }
 
-        public class Handler : IRequestHandler<Query, TodoItemDto?>
+        public class Handler(IApplicationDbContext context) : IRequestHandler<Query, TodoItemDto?>
         {
-            private readonly IApplicationDbContext _context;
-
-            public Handler(IApplicationDbContext context)
-            {
-                _context = context;
-            }
-
             public async Task<TodoItemDto?> Handle(Query request, CancellationToken cancellationToken)
             {
-                return await _context.TodoItems
+                return await context.TodoItems
                     .Where(t => t.Id == request.Id)
                     .Select(t => new TodoItemDto
                     {

@@ -20,18 +20,11 @@ namespace Zumra.Application.Features.TodoItems.Commands
             }
         }
 
-        public class Handler : IRequestHandler<Command, bool>
+        public class Handler(IApplicationDbContext context) : IRequestHandler<Command, bool>
         {
-            private readonly IApplicationDbContext _context;
-
-            public Handler(IApplicationDbContext context)
-            {
-                _context = context;
-            }
-
             public async Task<bool> Handle(Command request, CancellationToken cancellationToken)
             {
-                var entity = await _context.TodoItems
+                var entity = await context.TodoItems
                     .FirstOrDefaultAsync(t => t.Id == request.Id, cancellationToken);
 
                 if (entity == null)
@@ -39,8 +32,8 @@ namespace Zumra.Application.Features.TodoItems.Commands
                     return false;
                 }
 
-                _context.TodoItems.Remove(entity);
-                await _context.SaveChangesAsync(cancellationToken);
+                context.TodoItems.Remove(entity);
+                await context.SaveChangesAsync(cancellationToken);
 
                 return true;
             }

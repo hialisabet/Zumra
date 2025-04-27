@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using MediatR;
+using Zumra.Application.Common;
 using Zumra.Application.Interfaces;
 using Zumra.Domain.Entities;
 
@@ -17,20 +18,17 @@ namespace Zumra.Application.Features.TodoItems.Commands
         {
             public Validator()
             {
-                RuleFor(x => x.Title).NotEmpty().MaximumLength(200);
-                RuleFor(x => x.Description).MaximumLength(1000);
+                RuleFor(x => x.Title)
+                  .NotEmpty()
+                  .MaximumLength(AppConstants.TitleMaxLength);
+
+                RuleFor(x => x.Description)
+                  .MaximumLength(AppConstants.TitleMaxLength);
             }
         }
 
-        public class Handler : IRequestHandler<Command, int>
+        public class Handler(IApplicationDbContext context) : IRequestHandler<Command, int>
         {
-            private readonly IApplicationDbContext _context;
-
-            public Handler(IApplicationDbContext context)
-            {
-                _context = context;
-            }
-
             public async Task<int> Handle(Command request, CancellationToken cancellationToken)
             {
                 var entity = new TodoItem
@@ -41,8 +39,8 @@ namespace Zumra.Application.Features.TodoItems.Commands
                     CreatedAt = DateTime.UtcNow
                 };
 
-                _context.TodoItems.Add(entity);
-                await _context.SaveChangesAsync(cancellationToken);
+                context.TodoItems.Add(entity);
+                await context.SaveChangesAsync(cancellationToken);
 
                 return entity.Id;
             }

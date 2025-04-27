@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Xunit;
 using Zumra.Domain.Entities;
 using Zumra.Infrastructure.Persistence;
 
